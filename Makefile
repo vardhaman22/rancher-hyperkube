@@ -1,9 +1,9 @@
-K8S_VERSION?=v1.25.5
+K8S_VERSION?=v1.26.4
 
 ARCH?=amd64
 ALL_ARCH=amd64 arm64
 
-IMAGE?=docker.io/rancher/hyperkube
+IMAGE?=docker.io/vardhaman123/hyperkube
 TAGEND?=rancher1
 
 K8S_STAGING:=$(shell mktemp -d)
