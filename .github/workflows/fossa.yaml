@@ -2,8 +2,11 @@ name: Run Fossa Scan
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      # v1.27, v1.28, v1.29 and so on
+      - "v1.*"
+  # For manual scans.
+  workflow_dispatch:
 
 jobs:
   fossa:
@@ -11,21 +14,18 @@ jobs:
     permissions:
       contents: read
       id-token: write # needed for the Vault authentication
-    continue-on-error: true # we know that fossa test will report errors
     steps:
-      - name: Load Secrets from Vault
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read FOSSA token
         uses: rancher-eio/read-vault-secrets@main
         with:
           secrets: |
-            secret/data/github/repo/${{ github.repository }}/fossa/credentials token | FOSSA
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-      - name: Run Fossa analyze
-        uses: fossas/fossa-action@v1.3.3
+            secret/data/github/org/rancher/fossa/push token | FOSSA_API_KEY_PUSH_ONLY
+
+      - name: FOSSA scan
+        uses: fossas/fossa-action@main
         with:
-          api-key: ${{ env.FOSSA }}
-      - name: Run Fossa test
-        uses: fossas/fossa-action@v1.3.3
-        with:
-          api-key: ${{ env.FOSSA }}
-          run-tests: true
+          api-key: ${{ env.FOSSA_API_KEY_PUSH_ONLY }}
+          run-tests: false
